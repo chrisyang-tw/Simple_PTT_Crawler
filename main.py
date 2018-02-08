@@ -3,9 +3,8 @@ from bs4 import BeautifulSoup
 from pretty_print import pretty_print ## 美化輸出
 import urllib.parse ## url 相關應用
 
-# index = 'https://www.ptt.cc/bbs/movie/index.html'
-index = str(input('請輸入ptt看板網址(ex: https://www.ptt.cc/bbs/movie/index.html)：\n'))
-pages = eval(input('請輸入想爬的頁數：'))
+index = str(input('請輸入ptt看板網址 (ex: https://www.ptt.cc/bbs/movie/index.html)：\n'))
+pages = eval(input('請輸入想爬的頁數 ex: 5：'))
 
 not_exist = BeautifulSoup('<a>(本文已被刪除)</a>', 'lxml').a ## '本文已被刪除'的結構不同，自行生成<a>
 
@@ -38,8 +37,20 @@ def get_pages(num): ## 要爬幾頁
     
     return all_articles
 
-# if __name__ == '__main__': ## 在此程式為主程式才執行
-#    pages = 5
+data = get_pages(pages)
 
-for k in get_pages(pages):
-    pretty_print(k['push'], k['title'], k['date'], k['author'])
+# for k in data:
+#     pretty_print(k['push'], k['title'], k['date'], k['author'])
+
+csv_or_not = input('輸入 y 以匯出成csv檔，輸入其他結束程式：')
+
+if csv_or_not == 'y':
+    board = index.split('/')[-2]
+    csv = open('./ptt_%s版_前%d頁.csv'%(board, pages), 'a+', encoding='utf-8')
+    csv.write('推文數,標題,發文日期,作者ID,\n')
+    for l in data:
+        l['title'] = l['title'].replace(',', '，') ## 與用來分隔的逗點作區別
+        csv.write(l['push'] + ',' + l['title'] + ',' + l['date'] + ',' + l['author'] + ',\n')
+    csv.close()
+else:
+    quit()
